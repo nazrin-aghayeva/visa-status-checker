@@ -12,7 +12,7 @@ import smtplib
 from email.mime.text import MIMEText
 
 STATUS_URL = "https://ipc.gov.cz/api/ip/external/proceedings/state/cj/zov?idCj=71164&database=ZM&year=2025&zov="
-EXPECTED_STATE = "INPROGRESS"
+EXPECTED_STATE = "SOMETHING_ELSE"
 
 
 def get_current_state():
