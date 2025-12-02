@@ -4,14 +4,36 @@ import smtplib
 from email.mime.text import MIMEText
 from urllib.request import urlopen
 
+from urllib.request import urlopen, Request
+from urllib.error import HTTPError, URLError
+import json
+import os
+import smtplib
+from email.mime.text import MIMEText
+
 STATUS_URL = "https://ipc.gov.cz/api/ip/external/proceedings/state/cj/zov?idCj=71164&database=ZM&year=2025&zov="
 EXPECTED_STATE = "INPROGRESS"
 
 
 def get_current_state():
-    with urlopen(STATUS_URL, timeout=10) as resp:
-        data = json.loads(resp.read().decode("utf-8"))
-        return data.get("state"), data.get("identification")
+    try:
+        req = Request(
+            STATUS_URL,
+            headers={
+                # pretend to be a normal browser
+                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+                              "(KHTML, like Gecko) Chrome/129.0 Safari/537.36"
+            },
+        )
+        with urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return data.get("state"), data.get("identification")
+    except HTTPError as e:
+        print(f"HTTPError when calling status URL: {e.code} {e.reason}")
+        return None, None
+    except URLError as e:
+        print(f"URLError when calling status URL: {e.reason}")
+        return None, None
 
 
 def send_email(subject, body):
